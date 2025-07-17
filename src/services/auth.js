@@ -106,3 +106,31 @@ export const getUserRole = async (uid) => {
     return 'citizen';
   }
 };
+
+// Update user profile
+export const updateUserProfile = async (profileData) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No user is currently signed in');
+    }
+
+    // Update Firebase Auth profile
+    if (profileData.displayName) {
+      await updateProfile(user, { displayName: profileData.displayName });
+    }
+
+    // Update user document in Firestore
+    const userRef = doc(db, 'users', user.uid);
+    await setDoc(userRef, {
+      displayName: profileData.displayName,
+      email: profileData.email,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+
+    return user;
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    throw error;
+  }
+};

@@ -1,9 +1,9 @@
+/* Import Leaflet CSS */
+@import 'leaflet/dist/leaflet.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import Leaflet CSS */
-@import 'leaflet/dist/leaflet.css';
 
 /* Custom CSS */
 @layer base {
@@ -50,7 +50,7 @@
   }
   
   .textarea {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-vertical;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-y;
   }
   
   .badge {
@@ -71,7 +71,7 @@
   
   .severity-1 { @apply bg-green-100 text-green-800; }
   .severity-2 { @apply bg-yellow-100 text-yellow-800; }
-  .severity-3 { @apply bg-orange-100 text-orange-800; }
+  .severity-3 { @apply bg-yellow-200 text-yellow-900; }
   .severity-4 { @apply bg-red-100 text-red-800; }
   .severity-5 { @apply bg-red-200 text-red-900; }
 }

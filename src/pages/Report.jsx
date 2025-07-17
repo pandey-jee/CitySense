@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createIssue, ISSUE_CATEGORIES, uploadImage } from '../services/database';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { performanceMonitor, measureAsync } from '../utils/performance';
 
 const Report = () => {
   const navigate = useNavigate();
@@ -131,28 +132,36 @@ const Report = () => {
     setLoading(true);
     
     try {
-      let imageURL = null;
-      
-      if (image) {
-        imageURL = await uploadImage(image);
-      }
+      // Use performance monitoring for the entire submission process
+      const result = await measureAsync('Issue Submission', async () => {
+        let imageURL = null;
+        
+        if (image) {
+          // Monitor image upload separately
+          imageURL = await measureAsync('Image Upload', () => uploadImage(image));
+        }
 
-      const issueData = {
-        ...formData,
-        latitude: parseFloat(formData.latitude),
-        longitude: parseFloat(formData.longitude),
-        severity: parseInt(formData.severity),
-        imageURL,
-        status: 'Open',
-        upvotes: 0,
-        createdAt: new Date().toISOString()
-      };
+        const issueData = {
+          ...formData,
+          latitude: parseFloat(formData.latitude),
+          longitude: parseFloat(formData.longitude),
+          severity: parseInt(formData.severity),
+          imageURL,
+          status: 'Open',
+          upvotes: 0,
+          createdAt: new Date().toISOString()
+        };
 
-      await createIssue(issueData);
+        // Monitor database write
+        return await measureAsync('Database Write', () => createIssue(issueData));
+      });
+
+      console.log('✅ Issue created successfully:', result);
       navigate('/');
+      
     } catch (error) {
-      console.error('Error creating issue:', error);
-      setErrors({ submit: 'Failed to create issue. Please try again.' });
+      console.error('❌ Error creating issue:', error);
+      setErrors({ submit: `Failed to create issue: ${error.message}` });
     } finally {
       setLoading(false);
     }

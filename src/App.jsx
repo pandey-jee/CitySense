@@ -6,6 +6,7 @@ import { getUserRole } from './services/auth';
 // Components
 import Navbar from './components/common/Navbar';
 import LoadingSpinner from './components/common/LoadingSpinner';
+import PerformanceDiagnostic from './components/common/PerformanceDiagnostic';
 
 // Pages
 import Home from './pages/Home';
@@ -73,6 +74,9 @@ function App() {
             </Routes>
           </main>
         </div>
+        
+        {/* Performance Diagnostic (remove in production) */}
+        {process.env.NODE_ENV === 'development' && <PerformanceDiagnostic />}
       </Router>
     </AuthProvider>
   );

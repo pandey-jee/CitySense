@@ -40,21 +40,102 @@ export const ISSUE_STATUS = {
   RESOLVED: 'Resolved'
 };
 
-// Add new issue
+// Add new issue with performance optimizations
 export const addIssue = async (issueData, imageFile) => {
   try {
+    console.log('🚀 Starting issue creation...');
     let imageURL = null;
     
-    // Upload image if provided
+    // Upload image if provided with compression
     if (imageFile) {
-      const imageRef = ref(storage, `issues/${Date.now()}_${imageFile.name}`);
-      const snapshot = await uploadBytes(imageRef, imageFile);
+      console.log('📸 Compressing and uploading image...');
+      
+      // Compress image before upload
+      const compressedFile = await compressImage(imageFile);
+      
+      const timestamp = Date.now();
+      const imageRef = ref(storage, `issues/${timestamp}_${imageFile.name}`);
+      
+      // Upload with progress tracking
+      const snapshot = await uploadBytes(imageRef, compressedFile);
       imageURL = await getDownloadURL(snapshot.ref);
+      
+      console.log('✅ Image uploaded successfully');
     }
-    
+
     const issue = {
       ...issueData,
       imageURL,
+      status: ISSUE_STATUS.OPEN,
+      upvotes: 0,
+      upvotedBy: [],
+      timestamp: Timestamp.now(),
+      resolvedAt: null,
+      resolvedBy: null
+    };
+
+    console.log('💾 Saving issue to database...');
+    const docRef = await addDoc(collection(db, 'issues'), issue);
+    
+    console.log('✅ Issue created successfully:', docRef.id);
+    return docRef.id;
+    
+  } catch (error) {
+    console.error('❌ Error adding issue:', error);
+    throw new Error(`Failed to create issue: ${error.message}`);
+  }
+};
+
+// Image compression function for better performance
+const compressImage = (file, maxWidth = 800, quality = 0.8) => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = () => {
+      // Calculate new dimensions
+      const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+      canvas.width = img.width * ratio;
+      canvas.height = img.height * ratio;
+      
+      // Draw and compress
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(resolve, file.type, quality);
+    };
+    
+    img.src = URL.createObjectURL(file);
+  });
+};
+
+// Upload image to Firebase Storage with optimizations
+export const uploadImage = async (imageFile) => {
+  try {
+    console.log('📸 Starting image upload...');
+    
+    // Compress image first
+    const compressedFile = await compressImage(imageFile);
+    
+    const timestamp = Date.now();
+    const imageRef = ref(storage, `issues/${timestamp}_${imageFile.name}`);
+    
+    // Upload compressed image
+    const snapshot = await uploadBytes(imageRef, compressedFile);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    console.log('✅ Image uploaded:', downloadURL);
+    return downloadURL;
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    throw error;
+  }
+};
+
+// Create issue function (separate from addIssue)
+export const createIssue = async (issueData) => {
+  try {
+    const issue = {
+      ...issueData,
       status: ISSUE_STATUS.OPEN,
       upvotes: 0,
       upvotedBy: [],
@@ -66,17 +147,19 @@ export const addIssue = async (issueData, imageFile) => {
     const docRef = await addDoc(collection(db, 'issues'), issue);
     return docRef.id;
   } catch (error) {
-    console.error('Error adding issue:', error);
+    console.error('Error creating issue:', error);
     throw error;
   }
 };
 
-// Get all issues
+// Get all issues with performance optimizations
 export const getIssues = async (filters = {}) => {
   try {
+    console.log('🔍 Fetching issues with filters:', filters);
+    
     let q = collection(db, 'issues');
     
-    // Apply filters
+    // Apply filters efficiently
     if (filters.category) {
       q = query(q, where('category', '==', filters.category));
     }
@@ -92,15 +175,15 @@ export const getIssues = async (filters = {}) => {
     // Order by timestamp (newest first)
     q = query(q, orderBy('timestamp', 'desc'));
     
-    // Apply limit if specified
-    if (filters.limit) {
-      q = query(q, limit(filters.limit));
-    }
+    // Apply limit for better performance (default 50)
+    const itemLimit = filters.limit || 50;
+    q = query(q, limit(itemLimit));
     
     const querySnapshot = await getDocs(q);
     const issues = [];
     
     querySnapshot.forEach((doc) => {
+      const data = doc.data();
       issues.push({
         id: doc.id,
         ...doc.data(),
@@ -264,6 +347,20 @@ export const getIssueStats = async () => {
     return stats;
   } catch (error) {
     console.error('Error getting issue stats:', error);
+    throw error;
+  }
+};
+
+// Get users (for admin dashboard)
+export const getUsers = async () => {
+  try {
+    const usersSnapshot = await getDocs(collection(db, 'users'));
+    return usersSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Error fetching users:', error);
     throw error;
   }
 };

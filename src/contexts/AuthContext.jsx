@@ -1,5 +1,12 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { onAuthStateChange, getUserRole } from '../services/auth';
+import { 
+  onAuthStateChange, 
+  getUserRole, 
+  signInWithEmail, 
+  signUpWithEmail, 
+  signOutUser, 
+  updateUserProfile 
+} from '../services/auth';
 
 const AuthContext = createContext();
 
@@ -32,12 +39,55 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
+  const login = async (email, password) => {
+    try {
+      const user = await signInWithEmail(email, password);
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const register = async (email, password, displayName) => {
+    try {
+      const user = await signUpWithEmail(email, password, displayName);
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await signOutUser();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const updateProfile = async (profileData) => {
+    try {
+      await updateUserProfile(profileData);
+      // Update local user state
+      setUser(prev => ({
+        ...prev,
+        ...profileData
+      }));
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const value = {
     user,
     userRole,
     loading,
     isAdmin: userRole === 'admin',
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
+    login,
+    register,
+    logout,
+    updateProfile
   };
 
   return (
