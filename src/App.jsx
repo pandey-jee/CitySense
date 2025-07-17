@@ -11,7 +11,7 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 import Home from './pages/Home';
 import Report from './pages/Report';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
 import Profile from './pages/Profile';
 
 // Context
@@ -66,7 +66,7 @@ function App() {
                 path="/dashboard" 
                 element={
                   user && userRole === 'admin' ? 
-                    <Dashboard /> : 
+                    <AdminDashboard /> : 
                     <Navigate to="/" />
                 } 
               />

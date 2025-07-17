@@ -7,13 +7,13 @@ import { getStorage } from 'firebase/storage';
 // Your web app's Firebase configuration
 // For Firebase JS SDK v9-compat and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAWnXTYSoiDAgWwRMDrNoiuPCVxP_LQ1Pg",
-  authDomain: "citysense-a23ee.firebaseapp.com",
-  projectId: "citysense-a23ee",
-  storageBucket: "citysense-a23ee.firebasestorage.app",
-  messagingSenderId: "221613263472",
-  appId: "1:221613263472:web:c13370917e41a43c8d82b5",
-  measurementId: "G-VMLBM8S9E3"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
