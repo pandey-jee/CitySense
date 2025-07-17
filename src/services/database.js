@@ -208,15 +208,38 @@ export const getIssues = async (filters = {}) => {
 export const getIssuesByUser = async (userId) => {
   try {
     console.log('🔍 Querying issues for userId:', userId);
+    console.log('🔍 userId type:', typeof userId);
     
+    // First, let's get all issues to see what's in the database
+    const allIssuesQuery = query(collection(db, 'issues'));
+    const allSnapshot = await getDocs(allIssuesQuery);
+    
+    console.log('📊 Total issues in database:', allSnapshot.size);
+    
+    // Log first few issues to see the structure
+    allSnapshot.docs.slice(0, 5).forEach((doc, index) => {
+      const data = doc.data();
+      console.log(`🔍 Issue ${index + 1}:`, {
+        id: doc.id,
+        userId: data.userId,
+        userEmail: data.userEmail,
+        title: data.title,
+        hasUserId: !!data.userId,
+        userIdType: typeof data.userId
+      });
+    });
+    
+    // Try simple query first without orderBy to avoid index issues
     const q = query(
       collection(db, 'issues'),
-      where('userId', '==', userId),
-      orderBy('timestamp', 'desc')
+      where('userId', '==', userId)
     );
     
+    console.log('🔄 Executing user-specific query...');
     const querySnapshot = await getDocs(q);
     const issues = [];
+    
+    console.log('📊 User-specific query results:', querySnapshot.size);
     
     querySnapshot.forEach((doc) => {
       const issueData = {
@@ -224,16 +247,23 @@ export const getIssuesByUser = async (userId) => {
         ...doc.data(),
         timestamp: doc.data().timestamp?.toDate()
       };
-      console.log('📝 Found issue:', issueData);
+      console.log('📝 Found user issue:', issueData);
       issues.push(issueData);
     });
     
-    console.log(`✅ Total issues found for user: ${issues.length}`);
+    // Sort by timestamp manually
+    issues.sort((a, b) => {
+      const timeA = a.timestamp || new Date(0);
+      const timeB = b.timestamp || new Date(0);
+      return timeB - timeA;
+    });
+    
+    console.log(`✅ Total issues found for user ${userId}: ${issues.length}`);
     return issues;
     
-    return issues;
   } catch (error) {
-    console.error('Error getting user issues:', error);
+    console.error('❌ Error getting user issues:', error);
+    console.error('❌ Error details:', error.message);
     throw error;
   }
 };

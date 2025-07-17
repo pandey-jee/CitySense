@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getIssuesByUser } from '../services/database';
 import IssueCard from '../components/common/IssueCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { createTestIssue } from '../utils/testUtils';
 import { testUserIssueFlow, testFirebaseConnection } from '../utils/debugUtils';
 
 const Profile = () => {
@@ -28,12 +29,29 @@ const Profile = () => {
 
   const fetchUserIssues = async () => {
     try {
+      if (!user || !user.uid) {
+        console.log('❌ No user or user.uid found');
+        console.log('🔍 User object:', user);
+        return;
+      }
+      
+      console.log('🚀 Starting profile issue fetch...');
       console.log('👤 Fetching issues for user:', user.uid);
+      console.log('👤 User object details:', {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName
+      });
+      
+      setLoading(true);
       const issues = await getIssuesByUser(user.uid);
       console.log('📋 Found user issues:', issues);
+      console.log('📊 Total issues found:', issues.length);
+      
       setUserIssues(issues);
     } catch (error) {
-      console.error('Error fetching user issues:', error);
+      console.error('❌ Error fetching user issues:', error);
+      console.error('❌ Error details:', error.message);
     } finally {
       setLoading(false);
     }
@@ -314,16 +332,49 @@ const Profile = () => {
       <div className="mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="px-6 py-4 bg-gray-50 border-b flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-900">Your Reported Issues</h2>
-          <button
-            onClick={() => {
-              console.log('🔍 Debug: Current user:', user);
-              console.log('🔍 Debug: User issues:', userIssues);
-              fetchUserIssues();
-            }}
-            className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
-          >
-            Refresh & Debug
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={async () => {
+                console.log('🔄 Refreshing user issues...');
+                await fetchUserIssues();
+              }}
+              className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+            >
+              🔄 Refresh
+            </button>
+            <button
+              onClick={async () => {
+                console.log('🧪 Creating test issue...');
+                await createTestIssue(user);
+                console.log('✅ Test issue created, refreshing...');
+                await fetchUserIssues();
+              }}
+              className="px-3 py-1 bg-green-600 text-white text-sm rounded-md hover:bg-green-700"
+            >
+              🧪 Test Issue
+            </button>
+            <button
+              onClick={async () => {
+                console.log('🔍 === COMPREHENSIVE DEBUG ===');
+                console.log('👤 Current user object:', user);
+                console.log('� User UID:', user?.uid);
+                console.log('👤 User email:', user?.email);
+                console.log('📊 Current userIssues state:', userIssues);
+                console.log('📊 UserIssues length:', userIssues.length);
+                
+                // Test database connection
+                await testFirebaseConnection();
+                
+                // Test user issue flow
+                await testUserIssueFlow(user?.uid);
+                
+                console.log('🔍 === DEBUG COMPLETE ===');
+              }}
+              className="px-3 py-1 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700"
+            >
+              🔍 Full Debug
+            </button>
+          </div>
         </div>
 
         <div className="p-6">

@@ -128,7 +128,7 @@ const Report = () => {
       return;
     }
 
-    console.log('✅ User found:', { uid: user.uid, email: user.email });
+    console.log('✅ User found:', { uid: user.uid, email: user.email, displayName: user.displayName });
 
     if (!validateForm()) {
       return;
@@ -148,11 +148,11 @@ const Report = () => {
 
         const issueData = {
           ...formData,
-          userId: user.uid,  // Link issue to user account
+          userId: user.uid,  // ✅ CRITICAL: Link issue to user account
           userEmail: user.email,  // User email for reference
           userName: user.displayName || user.email.split('@')[0], // User name for display
-          latitude: parseFloat(formData.latitude),
-          longitude: parseFloat(formData.longitude),
+          latitude: parseFloat(formData.latitude) || 0,
+          longitude: parseFloat(formData.longitude) || 0,
           severity: parseInt(formData.severity),
           imageURL,
           status: 'Open',
@@ -168,10 +168,15 @@ const Report = () => {
         console.log('📋 Complete issue data being saved:', issueData);
 
         // Monitor database write
-        return await measureAsync('Database Write', () => createIssue(issueData));
+        const issueId = await measureAsync('Database Write', () => createIssue(issueData));
+        
+        console.log('🎉 Issue created with ID:', issueId, 'for user:', user.uid);
+        
+        return issueId;
       });
 
       console.log('✅ Issue created successfully:', result);
+      alert('Issue reported successfully!');
       navigate('/');
       
     } catch (error) {
