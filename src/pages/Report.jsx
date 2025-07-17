@@ -120,10 +120,15 @@ const Report = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log('🔍 Submit triggered - Current user:', user);
+    
     if (!user) {
+      console.log('❌ No user found - redirecting to login');
       setErrors({ auth: 'Please log in to report an issue' });
       return;
     }
+
+    console.log('✅ User found:', { uid: user.uid, email: user.email });
 
     if (!validateForm()) {
       return;
@@ -143,14 +148,24 @@ const Report = () => {
 
         const issueData = {
           ...formData,
+          userId: user.uid,  // Link issue to user account
+          userEmail: user.email,  // User email for reference
+          userName: user.displayName || user.email.split('@')[0], // User name for display
           latitude: parseFloat(formData.latitude),
           longitude: parseFloat(formData.longitude),
           severity: parseInt(formData.severity),
           imageURL,
           status: 'Open',
           upvotes: 0,
+          downvotes: 0,
+          votes: [], // Track who voted and their vote type
+          comments: [], // Initialize comments array
+          viewCount: 0, // Track how many people viewed this issue
+          lastUpdated: new Date().toISOString(),
           createdAt: new Date().toISOString()
         };
+
+        console.log('📋 Complete issue data being saved:', issueData);
 
         // Monitor database write
         return await measureAsync('Database Write', () => createIssue(issueData));

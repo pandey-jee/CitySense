@@ -134,6 +134,8 @@ export const uploadImage = async (imageFile) => {
 // Create issue function (separate from addIssue)
 export const createIssue = async (issueData) => {
   try {
+    console.log('🔍 Creating issue with data:', issueData);
+    
     const issue = {
       ...issueData,
       status: ISSUE_STATUS.OPEN,
@@ -143,8 +145,12 @@ export const createIssue = async (issueData) => {
       resolvedAt: null,
       resolvedBy: null
     };
+
+    console.log('💾 Final issue object:', issue);
     
     const docRef = await addDoc(collection(db, 'issues'), issue);
+    
+    console.log('✅ Issue created with ID:', docRef.id);
     return docRef.id;
   } catch (error) {
     console.error('Error creating issue:', error);
@@ -201,6 +207,8 @@ export const getIssues = async (filters = {}) => {
 // Get issues by user
 export const getIssuesByUser = async (userId) => {
   try {
+    console.log('🔍 Querying issues for userId:', userId);
+    
     const q = query(
       collection(db, 'issues'),
       where('userId', '==', userId),
@@ -211,12 +219,17 @@ export const getIssuesByUser = async (userId) => {
     const issues = [];
     
     querySnapshot.forEach((doc) => {
-      issues.push({
+      const issueData = {
         id: doc.id,
         ...doc.data(),
         timestamp: doc.data().timestamp?.toDate()
-      });
+      };
+      console.log('📝 Found issue:', issueData);
+      issues.push(issueData);
     });
+    
+    console.log(`✅ Total issues found for user: ${issues.length}`);
+    return issues;
     
     return issues;
   } catch (error) {
@@ -361,6 +374,132 @@ export const getUsers = async () => {
     }));
   } catch (error) {
     console.error('Error fetching users:', error);
+    throw error;
+  }
+};
+
+// Vote on an issue
+export const voteOnIssue = async (issueId, userId, voteType) => {
+  try {
+    console.log(`👍 User ${userId} voting ${voteType} on issue ${issueId}`);
+    
+    const issueRef = doc(db, 'issues', issueId);
+    const issueDoc = await getDoc(issueRef);
+    
+    if (!issueDoc.exists()) {
+      throw new Error('Issue not found');
+    }
+    
+    const issueData = issueDoc.data();
+    let votes = issueData.votes || [];
+    
+    // Remove existing vote from this user
+    votes = votes.filter(vote => vote.userId !== userId);
+    
+    // Add new vote
+    votes.push({
+      userId,
+      type: voteType, // 'up' or 'down'
+      timestamp: new Date().toISOString()
+    });
+    
+    // Update the issue
+    await updateDoc(issueRef, {
+      votes,
+      lastUpdated: new Date().toISOString()
+    });
+    
+    console.log(`✅ Vote recorded: ${voteType} by ${userId}`);
+    
+  } catch (error) {
+    console.error('Error voting on issue:', error);
+    throw error;
+  }
+};
+
+// Add comment to an issue
+export const addComment = async (issueId, commentData) => {
+  try {
+    console.log(`💬 Adding comment to issue ${issueId}:`, commentData);
+    
+    const issueRef = doc(db, 'issues', issueId);
+    const issueDoc = await getDoc(issueRef);
+    
+    if (!issueDoc.exists()) {
+      throw new Error('Issue not found');
+    }
+    
+    const issueData = issueDoc.data();
+    const comments = issueData.comments || [];
+    
+    // Add new comment
+    const newComment = {
+      ...commentData,
+      id: Date.now().toString(), // Simple ID generation
+      timestamp: new Date().toISOString()
+    };
+    
+    comments.push(newComment);
+    
+    // Update the issue
+    await updateDoc(issueRef, {
+      comments,
+      lastUpdated: new Date().toISOString()
+    });
+    
+    console.log(`✅ Comment added to issue ${issueId}`);
+    
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    throw error;
+  }
+};
+
+// Get location name from coordinates (reverse geocoding)
+export const getLocationName = async (latitude, longitude) => {
+  try {
+    const response = await fetch(
+      `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=YOUR_API_KEY&pretty=1&no_annotations=1`
+    );
+    
+    if (!response.ok) {
+      // Fallback to a free service
+      const nominatimResponse = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+      );
+      
+      if (nominatimResponse.ok) {
+        const data = await nominatimResponse.json();
+        const address = data.address || {};
+        return `${address.road || address.suburb || address.city || 'Unknown location'}`;
+      }
+    }
+    
+    // If all fails, return coordinates
+    return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+    
+  } catch (error) {
+    console.error('Error getting location name:', error);
+    return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+  }
+};
+
+// Update issue status (for condition updates)
+export const updateIssueStatus = async (issueId, newStatus, userId) => {
+  try {
+    console.log(`📝 Updating issue ${issueId} status to ${newStatus}`);
+    
+    const issueRef = doc(db, 'issues', issueId);
+    await updateDoc(issueRef, {
+      status: newStatus,
+      lastUpdated: new Date().toISOString(),
+      updatedBy: userId
+    });
+    
+    console.log(`✅ Issue status updated to ${newStatus}`);
+    
+  } catch (error) {
+    console.error('Error updating issue status:', error);
     throw error;
   }
 };

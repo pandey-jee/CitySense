@@ -1,6 +1,6 @@
 // Performance diagnostic component for CitySense
 import React, { useState, useEffect } from 'react';
-import { performanceMonitor, testNetworkSpeed, testFirebasePerformance } from '../utils/performance';
+import { performanceMonitor, testNetworkSpeed, testFirebasePerformance } from '../../utils/performance';
 
 const PerformanceDiagnostic = () => {
   const [networkSpeed, setNetworkSpeed] = useState(null);

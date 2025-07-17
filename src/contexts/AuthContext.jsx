@@ -26,6 +26,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChange(async (user) => {
       if (user) {
+        console.log('🔐 User logged in:', user);
+        console.log('🔐 User UID:', user.uid);
+        console.log('🔐 User email:', user.email);
         setUser(user);
         const role = await getUserRole(user.uid);
         setUserRole(role);

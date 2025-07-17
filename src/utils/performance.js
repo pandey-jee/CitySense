@@ -100,7 +100,7 @@ export const testNetworkSpeed = async () => {
 
 // Firebase performance test
 export const testFirebasePerformance = async () => {
-  const { db } = await import('./firebase');
+  const { db } = await import('../services/firebase');
   const { collection, getDocs, limit, query } = await import('firebase/firestore');
   
   const startTime = performance.now();

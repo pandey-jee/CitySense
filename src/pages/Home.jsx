@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getIssues, ISSUE_CATEGORIES } from '../services/database';
 import IssueMap from '../components/map/IssueMap';
+import IssueCard from '../components/common/IssueCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const Home = () => {
@@ -181,38 +182,25 @@ const Home = () => {
       {/* Recent Issues */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Issues</h2>
-        <div className="space-y-4">
+        <div className="space-y-6">
           {filteredIssues.slice(0, 10).map((issue) => (
-            <div key={issue.id} className="border-b border-gray-200 pb-4">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-medium text-gray-900">{issue.title}</h3>
-                  <p className="text-gray-600 mt-1">{issue.description}</p>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
-                      {issue.category}
-                    </span>
-                    <span className={`px-2 py-1 rounded text-sm ${getStatusColor(issue.status)}`}>
-                      {issue.status}
-                    </span>
-                    <span className={`px-2 py-1 rounded text-sm ${getSeverityColor(issue.severity)}`}>
-                      Severity: {issue.severity}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      👍 {issue.upvotes || 0}
-                    </span>
-                  </div>
-                </div>
-                {issue.imageURL && (
-                  <img
-                    src={issue.imageURL}
-                    alt="Issue"
-                    className="w-16 h-16 object-cover rounded-md ml-4"
-                  />
-                )}
-              </div>
-            </div>
+            <IssueCard 
+              key={issue.id} 
+              issue={issue} 
+              onUpdate={fetchIssues}
+            />
           ))}
+          {filteredIssues.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No issues found matching your filters.</p>
+              <Link 
+                to="/report"
+                className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Report the first issue
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { getIssuesByUser } from '../services/database';
+import IssueCard from '../components/common/IssueCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { testUserIssueFlow, testFirebaseConnection } from '../utils/debugUtils';
 
 const Profile = () => {
   const { user, updateProfile, logout } = useAuth();
@@ -26,12 +28,33 @@ const Profile = () => {
 
   const fetchUserIssues = async () => {
     try {
+      console.log('👤 Fetching issues for user:', user.uid);
       const issues = await getIssuesByUser(user.uid);
+      console.log('📋 Found user issues:', issues);
       setUserIssues(issues);
     } catch (error) {
       console.error('Error fetching user issues:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Debug function to test the full flow
+  const runDebugTest = async () => {
+    console.log('🧪 Running debug test...');
+    
+    // Test Firebase connection
+    await testFirebaseConnection();
+    
+    // Test user issue flow
+    if (user?.uid) {
+      const result = await testUserIssueFlow(user.uid);
+      console.log('🧪 Debug test result:', result);
+      
+      // Refresh the user issues after test
+      if (result.success) {
+        await fetchUserIssues();
+      }
     }
   };
 
@@ -289,8 +312,18 @@ const Profile = () => {
 
       {/* User's Issues */}
       <div className="mt-8 bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="px-6 py-4 bg-gray-50 border-b">
+        <div className="px-6 py-4 bg-gray-50 border-b flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-900">Your Reported Issues</h2>
+          <button
+            onClick={() => {
+              console.log('🔍 Debug: Current user:', user);
+              console.log('🔍 Debug: User issues:', userIssues);
+              fetchUserIssues();
+            }}
+            className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+          >
+            Refresh & Debug
+          </button>
         </div>
 
         <div className="p-6">
@@ -305,41 +338,13 @@ const Profile = () => {
               </a>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {userIssues.map((issue) => (
-                <div key={issue.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-medium text-gray-900">{issue.title}</h3>
-                      <p className="text-gray-600 mt-1">{issue.description}</p>
-                      <p className="text-sm text-gray-500 mt-1">📍 {issue.location}</p>
-                      <div className="flex items-center space-x-4 mt-2">
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
-                          {issue.category}
-                        </span>
-                        <span className={`px-2 py-1 rounded text-sm ${getStatusColor(issue.status)}`}>
-                          {issue.status}
-                        </span>
-                        <span className={`px-2 py-1 rounded text-sm ${getSeverityColor(issue.severity)}`}>
-                          Severity: {issue.severity}
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          👍 {issue.upvotes || 0}
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          {new Date(issue.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                    {issue.imageURL && (
-                      <img
-                        src={issue.imageURL}
-                        alt="Issue"
-                        className="w-16 h-16 object-cover rounded-md ml-4"
-                      />
-                    )}
-                  </div>
-                </div>
+                <IssueCard 
+                  key={issue.id} 
+                  issue={issue} 
+                  onUpdate={fetchUserIssues}
+                />
               ))}
             </div>
           )}
