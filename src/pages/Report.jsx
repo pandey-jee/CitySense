@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createIssue, ISSUE_CATEGORIES, uploadImage } from '../services/database';
+import { createIssue, ISSUE_CATEGORIES } from '../services/database';
+import { uploadImageToCloudinary } from '../services/cloudinaryOptimized';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+
 import { performanceMonitor, measureAsync } from '../utils/performance';
 
 const Report = () => {
@@ -18,7 +20,7 @@ const Report = () => {
     latitude: '',
     longitude: ''
   });
-  const [image, setImage] = useState(null);
+  const [imageURL, setImageURL] = useState(null);
   const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
@@ -36,29 +38,9 @@ const Report = () => {
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setErrors(prev => ({
-          ...prev,
-          image: 'Image must be less than 5MB'
-        }));
-        return;
-      }
-      if (!file.type.startsWith('image/')) {
-        setErrors(prev => ({
-          ...prev,
-          image: 'Please select a valid image file'
-        }));
-        return;
-      }
-      setImage(file);
-      setErrors(prev => ({
-        ...prev,
-        image: ''
-      }));
-    }
+  const handleImageUpload = (result) => {
+    setImageURL(result.url);
+    console.log('📸 Image uploaded successfully:', result);
   };
 
   const getCurrentLocation = () => {
@@ -139,13 +121,6 @@ const Report = () => {
     try {
       // Use performance monitoring for the entire submission process
       const result = await measureAsync('Issue Submission', async () => {
-        let imageURL = null;
-        
-        if (image) {
-          // Monitor image upload separately
-          imageURL = await measureAsync('Image Upload', () => uploadImage(image));
-        }
-
         const issueData = {
           ...formData,
           userId: user.uid,  // ✅ CRITICAL: Link issue to user account
@@ -154,7 +129,7 @@ const Report = () => {
           latitude: parseFloat(formData.latitude) || 0,
           longitude: parseFloat(formData.longitude) || 0,
           severity: parseInt(formData.severity),
-          imageURL,
+          imageURL, // Use the fast-uploaded image URL
           status: 'Open',
           upvotes: 0,
           downvotes: 0,

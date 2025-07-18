@@ -7,12 +7,13 @@ import {
 import { 
   Eye, CheckCircle, Clock, Trash2, MapPin, Filter, Download, 
   Users, AlertTriangle, TrendingUp, Calendar, Search,
-  ExternalLink, MoreHorizontal, RefreshCw, Settings
+  ExternalLink, MoreHorizontal, RefreshCw, Settings, TestTube
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getIssues, updateIssue, deleteIssue, getUsers } from '../services/database';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import IssueMap from '../components/map/IssueMap';
+import CloudinaryTester from '../components/common/CloudinaryTester';
 import { IssuesTab, MapTab, AnalyticsTab, UsersTab } from '../components/admin/AdminTabs';
 import { ExportModal, AdminSettings, exportToCSV } from '../components/admin/AdminUtils';
 import moment from 'moment';
@@ -245,7 +246,8 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -449,56 +451,59 @@ const AdminDashboard = () => {
         users={users}
       />
     </div>
+  </>
   );
 };
 
 // Overview Tab Component
 const OverviewTab = ({ analytics }) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div className="bg-white p-6 rounded-lg shadow-sm border">
-      <div className="flex items-center">
-        <div className="p-2 bg-blue-100 rounded-lg">
-          <AlertTriangle className="h-6 w-6 text-blue-600" />
-        </div>
-        <div className="ml-4">
-          <p className="text-sm font-medium text-gray-600">Total Issues</p>
-          <p className="text-2xl font-bold text-gray-900">{analytics.totalIssues}</p>
-        </div>
-      </div>
-    </div>
-
-    <div className="bg-white p-6 rounded-lg shadow-sm border">
-      <div className="flex items-center">
-        <div className="p-2 bg-green-100 rounded-lg">
-          <CheckCircle className="h-6 w-6 text-green-600" />
-        </div>
-        <div className="ml-4">
-          <p className="text-sm font-medium text-gray-600">Resolved</p>
-          <p className="text-2xl font-bold text-gray-900">{analytics.resolvedIssues}</p>
+  <div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="flex items-center">
+          <div className="p-2 bg-blue-100 rounded-lg">
+            <AlertTriangle className="h-6 w-6 text-blue-600" />
+          </div>
+          <div className="ml-4">
+            <p className="text-sm font-medium text-gray-600">Total Issues</p>
+            <p className="text-2xl font-bold text-gray-900">{analytics.totalIssues}</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div className="bg-white p-6 rounded-lg shadow-sm border">
-      <div className="flex items-center">
-        <div className="p-2 bg-yellow-100 rounded-lg">
-          <Clock className="h-6 w-6 text-yellow-600" />
-        </div>
-        <div className="ml-4">
-          <p className="text-sm font-medium text-gray-600">In Progress</p>
-          <p className="text-2xl font-bold text-gray-900">{analytics.inProgressIssues}</p>
+      <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="flex items-center">
+          <div className="p-2 bg-green-100 rounded-lg">
+            <CheckCircle className="h-6 w-6 text-green-600" />
+          </div>
+          <div className="ml-4">
+            <p className="text-sm font-medium text-gray-600">Resolved</p>
+            <p className="text-2xl font-bold text-gray-900">{analytics.resolvedIssues}</p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div className="bg-white p-6 rounded-lg shadow-sm border">
-      <div className="flex items-center">
-        <div className="p-2 bg-red-100 rounded-lg">
-          <TrendingUp className="h-6 w-6 text-red-600" />
+      <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="flex items-center">
+          <div className="p-2 bg-yellow-100 rounded-lg">
+            <Clock className="h-6 w-6 text-yellow-600" />
+          </div>
+          <div className="ml-4">
+            <p className="text-sm font-medium text-gray-600">In Progress</p>
+            <p className="text-2xl font-bold text-gray-900">{analytics.inProgressIssues}</p>
+          </div>
         </div>
-        <div className="ml-4">
-          <p className="text-sm font-medium text-gray-600">This Week</p>
-          <p className="text-2xl font-bold text-gray-900">{analytics.thisWeekIssues}</p>
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="flex items-center">
+          <div className="p-2 bg-red-100 rounded-lg">
+            <TrendingUp className="h-6 w-6 text-red-600" />
+          </div>
+          <div className="ml-4">
+            <p className="text-sm font-medium text-gray-600">This Week</p>
+            <p className="text-2xl font-bold text-gray-900">{analytics.thisWeekIssues}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -540,6 +545,15 @@ const OverviewTab = ({ analytics }) => (
           </PieChart>
         </ResponsiveContainer>
       </div>
+    </div>
+
+    {/* Cloudinary Performance Testing */}
+    <div className="col-span-full mt-8">
+      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+        <TestTube className="w-6 h-6 text-blue-500" />
+        Cloudinary Performance Testing
+      </h2>
+      <CloudinaryTester />
     </div>
   </div>
 );
