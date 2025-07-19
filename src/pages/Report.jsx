@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createIssue, ISSUE_CATEGORIES } from '../services/database';
-import { uploadImageToCloudinary } from '../services/cloudinaryOptimized';
+import { uploadImageToCloudinaryFast } from '../services/cloudinaryOptimized';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
@@ -21,6 +21,7 @@ const Report = () => {
     longitude: ''
   });
   const [imageURL, setImageURL] = useState(null);
+  const [image, setImage] = useState(null);
   const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
@@ -38,9 +39,53 @@ const Report = () => {
     }
   };
 
-  const handleImageUpload = (result) => {
-    setImageURL(result.url);
-    console.log('📸 Image uploaded successfully:', result);
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setErrors(prev => ({
+        ...prev,
+        image: 'Please select a valid image file (JPEG, PNG, or WebP)'
+      }));
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setErrors(prev => ({
+        ...prev,
+        image: 'Image size should be less than 5MB'
+      }));
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setErrors(prev => ({ ...prev, image: null }));
+      
+      // Show preview
+      setImage(URL.createObjectURL(file));
+      
+      // Upload to Cloudinary
+      const result = await uploadImageToCloudinaryFast(file);
+      setImageURL(result.optimizedUrl);
+      
+      console.log('✅ Image uploaded successfully:', result);
+    } catch (error) {
+      console.error('❌ Image upload failed:', error);
+      setErrors(prev => ({
+        ...prev,
+        image: 'Failed to upload image. Please try again.'
+      }));
+      setImage(null);
+      setImageURL(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getCurrentLocation = () => {
@@ -75,12 +120,18 @@ const Report = () => {
   const validateForm = () => {
     const newErrors = {};
 
+    // Title validation
     if (!formData.title.trim()) {
       newErrors.title = 'Title is required';
+    } else if (formData.title.length < 5) {
+      newErrors.title = 'Title must be at least 5 characters long';
     }
 
+    // Description validation
     if (!formData.description.trim()) {
       newErrors.description = 'Description is required';
+    } else if (formData.description.length < 20) {
+      newErrors.description = 'Description must be at least 20 characters long';
     }
 
     if (!formData.category) {
@@ -356,10 +407,18 @@ const Report = () => {
             {image && (
               <div className="mt-2">
                 <img
-                  src={URL.createObjectURL(image)}
+                  src={image}
                   alt="Preview"
-                  className="w-32 h-32 object-cover rounded-md"
+                  className="w-32 h-32 object-cover rounded-md shadow-sm"
                 />
+              </div>
+            )}
+            {loading && (
+              <div className="mt-2 flex items-center space-x-2">
+                <div className="w-5 h-5">
+                  <LoadingSpinner />
+                </div>
+                <p className="text-sm text-gray-500">Uploading image...</p>
               </div>
             )}
           </div>
