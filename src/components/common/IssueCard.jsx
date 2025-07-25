@@ -79,15 +79,15 @@ const IssueCard = ({ issue, onUpdate }) => {
   const downvotes = issue.votes?.filter(vote => vote.type === 'down').length || 0;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+    <div className="card hover:scale-105 animate-slide-in">
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">{issue.title}</h3>
-          <p className="text-gray-600 mb-3">{issue.description}</p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-text mb-2">{issue.title}</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-3">{issue.description}</p>
           
           {/* Location */}
-          <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+          <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-3">
             <div className="flex items-center">
               <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />

@@ -16,6 +16,8 @@ import Profile from './pages/Profile';
 
 // Context
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import ThemeToggle from './components/common/ThemeToggle';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -44,36 +46,39 @@ function App() {
 
   return (
     <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar user={user} userRole={userRole} />
-          <main className="container mx-auto px-4 py-8">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route 
-                path="/report" 
-                element={user ? <Report /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/login" 
-                element={!user ? <Login /> : <Navigate to="/" />} 
-              />
-              <Route 
-                path="/profile" 
-                element={user ? <Profile /> : <Navigate to="/login" />} 
-              />
-              <Route 
-                path="/dashboard" 
-                element={
-                  user && userRole === 'admin' ? 
-                    <AdminDashboard /> : 
-                    <Navigate to="/" />
-                } 
-              />
-            </Routes>
-          </main>
-        </div>
-      </Router>
+      <ThemeProvider>
+        <Router>
+          <div className="min-h-screen bg-gray-50 dark:bg-dark-bg dark:text-dark-text transition-colors duration-300">
+            <Navbar user={user} userRole={userRole} />
+            <main className="container mx-auto px-4 py-8">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route 
+                  path="/report" 
+                  element={user ? <Report /> : <Navigate to="/login" />} 
+                />
+                <Route 
+                  path="/login" 
+                  element={!user ? <Login /> : <Navigate to="/" />} 
+                />
+                <Route 
+                  path="/profile" 
+                  element={user ? <Profile /> : <Navigate to="/login" />} 
+                />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    user && userRole === 'admin' ? 
+                      <AdminDashboard /> : 
+                      <Navigate to="/" />
+                  } 
+                />
+              </Routes>
+            </main>
+            <ThemeToggle />
+          </div>
+        </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
