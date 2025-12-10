@@ -218,30 +218,33 @@ const Report = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="px-6 py-4 bg-primary-600 text-white">
-          <h1 className="text-2xl font-bold">Report an Issue</h1>
-          <p className="text-primary-100 mt-1">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
+        <div className="px-8 py-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+          <h1 className="text-3xl font-bold flex items-center">
+            <span className="mr-3 text-4xl">🚨</span>
+            Report an Issue
+          </h1>
+          <p className="text-blue-100 mt-2 text-lg">
             Help improve your community by reporting urban issues
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-8 space-y-6">
           {errors.auth && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <p className="text-red-600">{errors.auth}</p>
+            <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 animate-slide-down">
+              <p className="text-red-700 font-medium">{errors.auth}</p>
             </div>
           )}
 
           {errors.submit && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <p className="text-red-600">{errors.submit}</p>
+            <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 animate-slide-down">
+              <p className="text-red-700 font-medium">{errors.submit}</p>
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Title *
             </label>
             <input
@@ -249,46 +252,52 @@ const Report = () => {
               name="title"
               value={formData.title}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                errors.title ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                errors.title ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
               }`}
               placeholder="Brief description of the issue"
             />
             {errors.title && (
-              <p className="text-red-600 text-sm mt-1">{errors.title}</p>
+              <p className="text-red-600 text-sm mt-2 flex items-center">
+                <span className="mr-1">⚠️</span>
+                {errors.title}
+              </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
               Description *
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              rows={4}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                errors.description ? 'border-red-500' : 'border-gray-300'
+              rows={5}
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none ${
+                errors.description ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
               }`}
-              placeholder="Detailed description of the issue"
+              placeholder="Detailed description of the issue (minimum 20 characters)"
             />
             {errors.description && (
-              <p className="text-red-600 text-sm mt-1">{errors.description}</p>
+              <p className="text-red-600 text-sm mt-2 flex items-center">
+                <span className="mr-1">⚠️</span>
+                {errors.description}
+              </p>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category *
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📁 Category *
               </label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  errors.category ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all bg-white ${
+                  errors.category ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
                 <option value="">Select category</option>
@@ -297,19 +306,22 @@ const Report = () => {
                 ))}
               </select>
               {errors.category && (
-                <p className="text-red-600 text-sm mt-1">{errors.category}</p>
+                <p className="text-red-600 text-sm mt-2 flex items-center">
+                  <span className="mr-1">⚠️</span>
+                  {errors.category}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Severity *
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                ⚡ Severity *
               </label>
               <select
                 name="severity"
                 value={formData.severity}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all hover:border-gray-300 bg-white"
               >
                 <option value={1}>1 - Low</option>
                 <option value={2}>2 - Minor</option>
@@ -321,28 +333,31 @@ const Report = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Location *
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              📍 Location *
             </label>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                errors.location ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                errors.location ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
               }`}
               placeholder="Address or landmark"
             />
             {errors.location && (
-              <p className="text-red-600 text-sm mt-1">{errors.location}</p>
+              <p className="text-red-600 text-sm mt-2 flex items-center">
+                <span className="mr-1">⚠️</span>
+                {errors.location}
+              </p>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Latitude *
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                🌍 Latitude *
               </label>
               <input
                 type="number"
@@ -350,16 +365,16 @@ const Report = () => {
                 value={formData.latitude}
                 onChange={handleInputChange}
                 step="any"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  errors.coordinates ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                  errors.coordinates ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
                 }`}
                 placeholder="e.g., 28.6139"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Longitude *
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                🌍 Longitude *
               </label>
               <input
                 type="number"
@@ -367,8 +382,8 @@ const Report = () => {
                 value={formData.longitude}
                 onChange={handleInputChange}
                 step="any"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                  errors.coordinates ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                  errors.coordinates ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
                 }`}
                 placeholder="e.g., 77.2090"
               />
@@ -376,67 +391,74 @@ const Report = () => {
           </div>
 
           {errors.coordinates && (
-            <p className="text-red-600 text-sm">{errors.coordinates}</p>
+            <p className="text-red-600 text-sm flex items-center">
+              <span className="mr-1">⚠️</span>
+              {errors.coordinates}
+            </p>
           )}
 
           <div>
             <button
               type="button"
               onClick={getCurrentLocation}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all shadow-md hover:shadow-lg font-medium flex items-center"
             >
-              📍 Use Current Location
+              <span className="mr-2">📍</span>
+              Use Current Location
             </button>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Image (optional)
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              📷 Image (optional)
             </label>
             <input
               type="file"
               accept="image/*"
               onChange={handleImageChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                errors.image ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                errors.image ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
               }`}
             />
             {errors.image && (
-              <p className="text-red-600 text-sm mt-1">{errors.image}</p>
+              <p className="text-red-600 text-sm mt-2 flex items-center">
+                <span className="mr-1">⚠️</span>
+                {errors.image}
+              </p>
             )}
             {image && (
-              <div className="mt-2">
+              <div className="mt-4">
                 <img
                   src={image}
                   alt="Preview"
-                  className="w-32 h-32 object-cover rounded-md shadow-sm"
+                  className="w-40 h-40 object-cover rounded-xl shadow-lg border-4 border-white"
                 />
               </div>
             )}
             {loading && (
-              <div className="mt-2 flex items-center space-x-2">
+              <div className="mt-3 flex items-center space-x-3 bg-blue-50 p-3 rounded-xl">
                 <div className="w-5 h-5">
                   <LoadingSpinner />
                 </div>
-                <p className="text-sm text-gray-500">Uploading image...</p>
+                <p className="text-sm text-blue-700 font-medium">Uploading image...</p>
               </div>
             )}
           </div>
 
-          <div className="flex justify-end space-x-4">
+          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-8 py-3 border-2 border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all font-medium"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50"
+              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 shadow-lg hover:shadow-xl font-medium"
             >
-              {loading ? 'Submitting...' : 'Report Issue'}
+              {loading ? 'Submitting...' : '🚀 Report Issue'}
             </button>
           </div>
         </form>

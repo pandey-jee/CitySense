@@ -17,7 +17,6 @@ import Profile from './pages/Profile';
 // Context
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import ThemeToggle from './components/common/ThemeToggle';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -48,7 +47,7 @@ function App() {
     <AuthProvider>
       <ThemeProvider>
         <Router>
-          <div className="min-h-screen bg-gray-50 dark:bg-dark-bg dark:text-dark-text transition-colors duration-300">
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
             <Navbar user={user} userRole={userRole} />
             <main className="container mx-auto px-4 py-8">
               <Routes>
@@ -75,7 +74,6 @@ function App() {
                 />
               </Routes>
             </main>
-            <ThemeToggle />
           </div>
         </Router>
       </ThemeProvider>
